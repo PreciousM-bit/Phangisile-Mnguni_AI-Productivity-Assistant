@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workplace Productivity Assistant</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+ .sidebar-active { background: #4F46E5; color: white; }
+ .card { transition: all 0.2s ease; }
+ .card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+ .loader { border: 3px solid #f3f3f3; border-top: 3px solid #4F46E5; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <div class="p-6 border-b">
+      <h1 class="text-xl font-bold text-indigo-600">AI Assistant</h1>
+      <p class="text-xs text-gray-500">Workplace Productivity</p>
+    </div>
+    <nav class="flex-1 p-4 space-y-2">
+      <button onclick="showTab('dashboard')" class="w-full text-left px-3 py-2 rounded-lg sidebar-active" id="nav-dashboard">Dashboard</button>
+      <button onclick="showTab('email')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100" id="nav-email">Smart Email Generator</button>
+      <button onclick="showTab('notes')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100" id="nav-notes">Meeting Notes</button>
+      <button onclick="showTab('tasks')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100" id="nav-tasks">AI Task Planner</button>
+      <button onclick="showTab('research')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100" id="nav-research">Research Assistant</button>
+      <button onclick="showTab('chat')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100" id="nav-chat">AI Chatbot</button>
+    </nav>
+    <div class="p-4 text-xs text-gray-400 border-t">
+      AI-generated content may require human review
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto p-6">
+    <!-- Dashboard -->
+    <div id="dashboard" class="tab">
+      <h2 class="text-2xl font-bold mb-6">Dashboard</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="card bg-white p-6 rounded-xl shadow">
+          <h3 class="font-semibold">Smart Email</h3>
+          <p class="text-sm text-gray-500 mt-2">Generate professional emails with the right tone</p>
+        </div>
+        <div class="card bg-white p-6 rounded-xl shadow">
+          <h3 class="font-semibold">Meeting Notes</h3>
+          <p class="text-sm text-gray-500 mt-2">Turn transcripts into key points + actions</p>
+        </div>
+        <div class="card bg-white p-6 rounded-xl shadow">
+          <h3 class="font-semibold">Task Planner</h3>
+          <p class="text-sm text-gray-500 mt-2">Prioritize and schedule your work</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email Generator -->
+    <div id="email" class="tab hidden">
+      <h2 class="text-2xl font-bold mb-4">Smart Email Generator</h2>
+      <div class="bg-white p-6 rounded-xl shadow space-y-4">
+        <input id="email-purpose" type="text" placeholder="Email purpose: e.g. Follow up with client" class="w-full border p-2 rounded-lg">
+        <div class="grid md:grid-cols-2 gap-4">
+          <select id="email-tone" class="border p-2 rounded-lg">
+            <option>Professional</option><option>Friendly</option><option>Direct</option><option>Persuasive</option>
+          </select>
+          <select id="email-audience" class="border p-2 rounded-lg">
+            <option>Client</option><option>Manager</option><option>Team</option><option>External Partner</option>
+          </select>
+        </div>
+        <button onclick="generateEmail()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+          <span id="email-loader" class="loader hidden"></span> Generate Email
+        </button>
+        <textarea id="email-output" class="w-full border p-3 rounded-lg h-40" readonly></textarea>
+        <p class="text-xs text-gray-400">AI-generated content may require human review</p>
+      </div>
+    </div>
+
+    <!-- Meeting Notes -->
+    <div id="notes" class="tab hidden">
+      <h2 class="text-2xl font-bold mb-4">Meeting Notes Summarizer</h2>
+      <div class="bg-white p-6 rounded-xl shadow space-y-4">
+        <textarea id="notes-input" placeholder="Paste meeting transcript here..." class="w-full border p-3 rounded-lg h-32"></textarea>
+        <button onclick="summarizeNotes()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+          <span id="notes-loader" class="loader hidden"></span> Summarize
+        </button>
+        <div id="notes-output" class="space-y-2"></div>
+        <p class="text-xs text-gray-400">AI-generated content may require human review</p>
+      </div>
+    </div>
+
+    <!-- Task Planner -->
+    <div id="tasks" class="tab hidden">
+      <h2 class="text-2xl font-bold mb-4">AI Task Planner</h2>
+      <div class="bg-white p-6 rounded-xl shadow space-y-4">
+        <textarea id="tasks-input" placeholder="List your tasks: e.g. Finish report, Call client, Prep slides" class="w-full border p-3 rounded-lg h-24"></textarea>
+        <button onclick="planTasks()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+          <span id="tasks-loader" class="loader hidden"></span> Prioritize Tasks
+        </button>
+        <div id="tasks-output"></div>
+        <p class="text-xs text-gray-400">AI-generated content may require human review</p>
+      </div>
+    </div>
+
+    <!-- Research Assistant -->
+    <div id="research" class="tab hidden">
+      <h2 class="text-2xl font-bold mb-4">AI Research Assistant</h2>
+      <div class="bg-white p-6 rounded-xl shadow space-y-4">
+        <input id="research-query" type="text" placeholder="Research topic: e.g. AI trends in marketing 2026" class="w-full border p-2 rounded-lg">
+        <button onclick="researchTopic()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+          <span id="research-loader" class="loader hidden"></span> Generate Insights
+        </button>
+        <div id="research-output"></div>
+        <p class="text-xs text-gray-400">AI-generated content may require human review</p>
+      </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chat" class="tab hidden">
+      <h2 class="text-2xl font-bold mb-4">AI Chatbot Interface</h2>
+      <div class="bg-white p-6 rounded-xl shadow flex flex-col h-[500px]">
+        <div id="chat-log" class="flex-1 overflow-y-auto space-y-3 mb-4"></div>
+        <div class="flex gap-2">
+          <input id="chat-input" type="text" placeholder="Ask me anything about work..." class="flex-1 border p-2 rounded-lg">
+          <button onclick="sendChat()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">Send</button>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">AI-generated content may require human review</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('sidebar-active'));
+  document.getElementById(tab).classList.remove('hidden');
+  document.getElementById('nav-'+tab).classList.add('sidebar-active');
+}
+
+// Structured Prompt Engineering + Mock AI Responses
+function mockAI(delay, outputFn) {
+  return new Promise(resolve => setTimeout(() => resolve(outputFn()), delay));
+}
+
+async function generateEmail() {
+  const loader = document.getElementById('email-loader');
+  loader.classList.remove('hidden');
+  const purpose = document.getElementById('email-purpose').value;
+  const tone = document.getElementById('email-tone').value;
+  const audience = document.getElementById('email-audience').value;
+  
+  const prompt = `You are a professional email assistant. Task: Write an email. Purpose: ${purpose}. Tone: ${tone}. Audience: ${audience}. Requirements: Clear subject line, professional greeting, 3 short paragraphs, clear CTA, professional signature.`;
+  
+  const result = await mockAI(1200, () => 
+`Subject: ${purpose}
+
+Hi [Name],
+
+I hope you're doing well. I'm reaching out regarding ${purpose}. 
+Given your role as ${audience}, I believe this will be valuable for your team.
+
+Could we schedule 15 minutes this week to discuss next steps?
+
+Best regards,
+[Your Name]`
+  );
+  document.getElementById('email-output').value = result;
+  loader.classList.add('hidden');
+}
+
+async function summarizeNotes() {
+  const loader = document.getElementById('notes-loader');
+  loader.classList.remove('hidden');
+  const text = document.getElementById('notes-input').value;
+  
+  const prompt = `You are a meeting assistant. Task: Summarize the transcript. Output format: 1. Key Points, 2. Action Items with owners, 3. Deadlines. Be concise and professional.`;
+  
+  const result = await mockAI(1200, () => `
+    <div class="p-3 bg-gray-50 rounded-lg"><b>Key Points:</b> Project deadline moved to Friday. Budget approved for Q4.</div>
+    <div class="p-3 bg-gray-50 rounded-lg"><b>Action Items:</b> Sarah: Finalize report. Mike: Send client proposal.</div>
+    <div class="p-3 bg-gray-50 rounded-lg"><b>Deadlines:</b> Report due Friday 5PM. Proposal due Wednesday.</div>
+  `);
+  document.getElementById('notes-output').innerHTML = result;
+  loader.classList.add('hidden');
+}
+
+async function planTasks() {
+  const loader = document.getElementById('tasks-loader');
+  loader.classList.remove('hidden');
+  const tasks = document.getElementById('tasks-input').value;
+  
+  const prompt = `You are a productivity coach. Task: Prioritize these tasks using Eisenhower Matrix. Output: High Priority, Medium, Low. Add suggested time blocks.`;
+  
+  const result = await mockAI(1200, () => `
+    <div class="p-3 bg-red-50 rounded-lg"><b>High Priority - Do First:</b> Finish report - 9:00-11:00 AM</div>
+    <div class="p-3 bg-yellow-50 rounded-lg"><b>Medium - Schedule:</b> Call client - 2:00 PM</div>
+    <div class="p-3 bg-green-50 rounded-lg"><b>Low - Delegate:</b> Prep slides</div>
+  `);
+  document.getElementById('tasks-output').innerHTML = result;
+  loader.classList.add('hidden');
+}
+
+async function researchTopic() {
+  const loader = document.getElementById('research-loader');
+  loader.classList.remove('hidden');
+  const query = document.getElementById('research-query').value;
+  
+  const prompt = `You are a research assistant. Task: Provide insights on: ${query}. Structure: 1. Executive Summary, 2. 3 Key Insights, 3. Implications for business.`;
+  
+  const result = await mockAI(1200, () => `
+    <div class="p-3 bg-gray-50 rounded-lg"><b>Executive Summary:</b> ${query} is trending with 40% YoY growth.</div>
+    <div class="p-3 bg-gray-50 rounded-lg"><b>Key Insights:</b> 1. Automation adoption up 60% 2. Remote tools demand rising 3. AI integration is key differentiator</div>
+    <div class="p-3 bg-gray-50 rounded-lg"><b>Implications:</b> Invest in AI tools to stay competitive in 2026.</div>
+  `);
+  document.getElementById('research-output').innerHTML = result;
+  loader.classList.add('hidden');
+}
+
+function sendChat() {
+  const input = document.getElementById('chat-input');
+  const log = document.getElementById('chat-log');
+  if(!input.value) return;
+  log.innerHTML += `<div class="text-right"><span class="bg-indigo-600 text-white px-3 py-2 rounded-lg inline-block">${input.value}</span></div>`;
+  const prompt = `You are a workplace AI assistant. Be helpful, professional, and concise. User: ${input.value}`;
+  setTimeout(() => {
+    log.innerHTML += `<div class="text-left"><span class="bg-gray-200 px-3 py-2 rounded-lg inline-block">I can help with that. For "${input.value}", I recommend breaking it into 3 steps and setting a deadline.</span></div>`;
+    log.scrollTop = log.scrollHeight;
+  }, 800);
+  input.value = '';
+}
+</script>
+</body>
+</html>
